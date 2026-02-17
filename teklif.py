@@ -17,14 +17,6 @@ from datetime import date
 from PIL import Image
 from xlsxwriter.utility import xl_rowcol_to_cell
 import streamlit as st
-import streamlit as st
-from streamlit_gsheets import GSheetsConnection
-
-import streamlit as st
-from streamlit_gsheets import GSheetsConnection
-import pandas as pd
-
-import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 
@@ -4077,6 +4069,7 @@ elif st.session_state.sayfa_secimi == "🚛 Teslim Tutanağı":
     except NameError:
 
         st.error("Veritabanı fonksiyonu eksik.")
+
 
 
 

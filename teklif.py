@@ -20,13 +20,23 @@ import streamlit as st
 import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 
-# Bağlantı Ayarı
+import streamlit as st
+from streamlit_gsheets import GSheetsConnection
+import pandas as pd
+
+# Bağlantıyı bir kez kuruyoruz
 url = "https://docs.google.com/spreadsheets/d/15RGLjHLgU6MF4EnaAjMh7q58PBcwKiKRJM1-KWrLJgg/edit?usp=sharing"
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-# Verileri okumak için örnek fonksiyon
-def verileri_getir(sayfa_adi):
-    return conn.read(spreadsheet=url, worksheet=sayfa_adi)
+# GENEL OKUMA FONKSİYONU
+def veri_oku(sekme_adi):
+    # ttl=0 ekliyoruz ki her seferinde güncel veriyi çeksin
+    return conn.read(spreadsheet=url, worksheet=sekme_adi, ttl=0)
+
+# GENEL YAZMA FONKSİYONU
+def veri_kaydet(sekme_adi, guncel_df):
+    conn.update(spreadsheet=url, worksheet=sekme_adi, data=guncel_df)
+    st.cache_data.clear() # Önbelleği temizle ki yeni veri hemen görünsün
     
 st.markdown(
     """
@@ -4041,6 +4051,7 @@ elif st.session_state.sayfa_secimi == "🚛 Teslim Tutanağı":
     except NameError:
 
         st.error("Veritabanı fonksiyonu eksik.")
+
 
 
 

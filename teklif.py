@@ -1306,8 +1306,10 @@ def musterileri_getir():
     return df
 
 def musteri_ekle(firma, yetkili, adres):
-    # 1. Mevcut verileri internetten (Google Sheets) en güncel haliyle çek
-    # ttl=0 ekliyoruz ki hafızadaki (cache) eski veriyi değil, gerçek veriyi alsın
+    # Dışarıdaki conn ve url değişkenlerini içeriye tanıtıyoruz
+    global conn, url 
+    
+    # Veri çekme işlemi
     df_mevcut = conn.read(spreadsheet=url, worksheet="musteriler", ttl=0)
     
     # 2. Yeni müşteri için bir satır oluştur
@@ -4069,6 +4071,7 @@ elif st.session_state.sayfa_secimi == "🚛 Teslim Tutanağı":
     except NameError:
 
         st.error("Veritabanı fonksiyonu eksik.")
+
 
 
 

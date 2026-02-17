@@ -16,6 +16,21 @@ from datetime import datetime
 from datetime import date
 from PIL import Image
 from xlsxwriter.utility import xl_rowcol_to_cell
+import streamlit as st
+
+st.markdown(
+    """
+    <style>
+    * {
+        color: #000000 !important;
+    }
+    .stApp {
+        background-color: #ffffff;
+    }
+    </style>
+    """,
+    unsafe_allow_stdio=True
+)
 
 def sayiyi_yaziya_cevir(sayi):
     if sayi == 0: return "SIFIR"
@@ -3995,4 +4010,5 @@ elif st.session_state.sayfa_secimi == "🚛 Teslim Tutanağı":
         else:
             st.info("Arşiv boş.")
     except NameError:
+
         st.error("Veritabanı fonksiyonu eksik.")

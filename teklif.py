@@ -1,4 +1,11 @@
 import streamlit as st
+from streamlit_gsheets import GSheetsConnection
+import pandas as pd
+
+url = "https://docs.google.com/spreadsheets/d/15RGLjHLgU6MF4EnaAjMh7q58PBcwKiKRJM1-KWrLJgg/edit?usp=sharing"
+conn = st.connection("gsheets", type=GSheetsConnection)
+
+import streamlit as st
 import pandas as pd
 import sqlite3
 import base64
@@ -16,13 +23,6 @@ from datetime import datetime
 from datetime import date
 from PIL import Image
 from xlsxwriter.utility import xl_rowcol_to_cell
-import streamlit as st
-from streamlit_gsheets import GSheetsConnection
-import pandas as pd
-
-# 1. Bağlantıyı tanımla
-url = "https://docs.google.com/spreadsheets/d/15RGLjHLgU6MF4EnaAjMh7q58PBcwKiKRJM1-KWrLJgg/edit?usp=sharing"
-conn = st.connection("gsheets", type=GSheetsConnection)
 
 # 2. Her tabloya (5 veritabanı sekmesi) yazabilen süper fonksiyon
 def buluta_kaydet(sekme_adi, yeni_veri_dict):
@@ -1306,31 +1306,27 @@ def musterileri_getir():
     return df
 
 def musteri_ekle(firma, yetkili, adres):
-    # Dışarıdaki conn ve url değişkenlerini içeriye tanıtıyoruz
+    # Dışarıdaki bağlantıyı içeriye tanıtıyoruz
     global conn, url 
     
-    # Veri çekme işlemi
-    df_mevcut = conn.read(spreadsheet=url, worksheet="musteriler", ttl=0)
-    
-    # 2. Yeni müşteri için bir satır oluştur
-    # ID'yi otomatik belirlemek için mevcut en büyük ID'ye 1 ekliyoruz
-    yeni_id = 1 if df_mevcut.empty else int(df_mevcut['id'].max() + 1)
-    
-    yeni_satir = pd.DataFrame([{
-        "id": yeni_id,
-        "firma_adi": firma,
-        "yetkili_kisi": yetkili,
-        "adres": adres
-    }])
-    
-    # 3. Eski verilerle yeni satırı birleştir
-    df_guncel = pd.concat([df_mevcut, yeni_satir], ignore_index=True)
-    
-    # 4. Güncel tabloyu Google Sheets'e geri gönder (Yazma işlemi)
-    conn.update(spreadsheet=url, worksheet="musteriler", data=df_guncel)
-    
-    # 5. Streamlit'in hafızasını temizle ki yeni müşteri listede hemen görünsün
-    st.cache_data.clear()
+    try:
+        # Veriyi çekmeyi dene
+        df_mevcut = conn.read(spreadsheet=url, worksheet="musteriler", ttl=0)
+        
+        # ID oluşturma ve yeni satır ekleme (Burayı aynen bırakabilirsin)
+        yeni_id = 1 if df_mevcut.empty else int(df_mevcut['id'].max() + 1)
+        yeni_satir = pd.DataFrame([{"id": yeni_id, "firma_adi": firma, "yetkili_kisi": yetkili, "adres": adres}])
+        
+        # Güncel veriyi birleştir ve buluta gönder
+        df_guncel = pd.concat([df_mevcut, yeni_satir], ignore_index=True)
+        conn.update(spreadsheet=url, worksheet="musteriler", data=df_guncel)
+        
+        st.success(f"{firma} başarıyla kaydedildi!")
+        st.cache_data.clear()
+        
+    except Exception as e:
+        # Hata olursa, hatanın ne olduğunu ekrana yazdır ki görelim
+        st.error(f"Bağlantı Hatası: {e}")
 
 def musteri_guncelle(id, yeni_firma, yeni_yetkili, yeni_adres):
     conn = db_baglan()
@@ -4071,6 +4067,7 @@ elif st.session_state.sayfa_secimi == "🚛 Teslim Tutanağı":
     except NameError:
 
         st.error("Veritabanı fonksiyonu eksik.")
+
 
 
 

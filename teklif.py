@@ -1306,27 +1306,25 @@ def musterileri_getir():
     return df
 
 def musteri_ekle(firma, yetkili, adres):
-    # Dışarıdaki bağlantıyı içeriye tanıtıyoruz
     global conn, url 
     
     try:
-        # Veriyi çekmeyi dene
+        st.info("Veriler okunuyor...") # Ekranda bilgi verir
         df_mevcut = conn.read(spreadsheet=url, worksheet="musteriler", ttl=0)
         
-        # ID oluşturma ve yeni satır ekleme (Burayı aynen bırakabilirsin)
         yeni_id = 1 if df_mevcut.empty else int(df_mevcut['id'].max() + 1)
         yeni_satir = pd.DataFrame([{"id": yeni_id, "firma_adi": firma, "yetkili_kisi": yetkili, "adres": adres}])
         
-        # Güncel veriyi birleştir ve buluta gönder
         df_guncel = pd.concat([df_mevcut, yeni_satir], ignore_index=True)
+        
+        st.info("Buluta gönderiliyor...")
         conn.update(spreadsheet=url, worksheet="musteriler", data=df_guncel)
         
-        st.success(f"{firma} başarıyla kaydedildi!")
-        st.cache_data.clear()
+        st.success(f"Başarıyla kaydedildi: {firma}")
+        st.cache_data.clear() # Listeyi güncellemek için önbelleği siler
         
     except Exception as e:
-        # Hata olursa, hatanın ne olduğunu ekrana yazdır ki görelim
-        st.error(f"Bağlantı Hatası: {e}")
+        st.error(f"Kayıt sırasında bir aksilik oldu: {e}")
 
 def musteri_guncelle(id, yeni_firma, yeni_yetkili, yeni_adres):
     conn = db_baglan()
@@ -4067,6 +4065,7 @@ elif st.session_state.sayfa_secimi == "🚛 Teslim Tutanağı":
     except NameError:
 
         st.error("Veritabanı fonksiyonu eksik.")
+
 
 
 
